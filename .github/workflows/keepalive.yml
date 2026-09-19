@@ -1,0 +1,16 @@
+# Render's free web service sleeps after ~15 min idle. This pings /api/ping (no DB call, so Neon
+# can still auto-suspend). Set a repository VARIABLE named API_URL, e.g. https://hourhive-api.onrender.com
+# Tip: keep the repo public - scheduled runs are free and unlimited on public repos.
+name: Keep API warm
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    if: ${{ vars.API_URL != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping
+        run: curl -fsS --max-time 90 "${{ vars.API_URL }}/api/ping" || true
